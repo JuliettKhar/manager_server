@@ -7,5 +7,8 @@
     "start": "ts-node src/Launcher.ts"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^16.11.6"
+  }
 }
