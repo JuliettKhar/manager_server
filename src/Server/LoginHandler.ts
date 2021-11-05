@@ -1,5 +1,6 @@
 import { IncomingMessage, ServerResponse} from "http";
 import {Account, Handler, TokenGenerator} from "./Model";
+import {HTTP_CODES, HTTP_METHODS} from "../Shared/Model";
 
 export class LoginHandler implements Handler {
 
@@ -10,16 +11,36 @@ export class LoginHandler implements Handler {
     }
 
     public async handleRequest(): Promise<void> {
+        switch (this.req.method) {
+            case HTTP_METHODS.POST:
+               await this.handlePost();
+                break;
+            default:
+               await this.handleNotFound();
+                break;
+        }
+    }
+
+    private async handleNotFound() {
+        this.res.statusCode = HTTP_CODES.NOT_FOUND;
+        this.res.write('Not Found');
+    }
+    private async handlePost() {
         try {
             const body = await this.getRequestBody();
             const sessionToken = await this.tokenGenerator.generateToken(body);
 
-            sessionToken ? this.res.write('valid token') : this.res.write('invalid token')
-            console.log(body, sessionToken)
+            if (sessionToken) {
+                this.res.statusCode = HTTP_CODES.CREATED;
+                this.res.writeHead(HTTP_CODES.CREATED, {'Content-Type': 'application/json'});
+                this.res.write(JSON.stringify(sessionToken));
+            } else {
+                this.res.statusCode = HTTP_CODES.NOT_FOUND;
+                this.res.write('wrong username or password');
+            }
         } catch (e) {
             this.res.write(`error ${e}`)
         }
-
     }
 
     private async getRequestBody(): Promise<Account> {
