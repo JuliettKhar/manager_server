@@ -1,4 +1,5 @@
-import { URL } from 'url';
+import {parse, URL, UrlWithParsedQuery, UrlWithStringQuery} from 'url';
+
 
 export class Utils {
     public static getUrlBasePath(urlStr :string | undefined): string {
@@ -7,5 +8,9 @@ export class Utils {
             return <string>url.pathname?.split('/')[1]
         }
             return ''
+    }
+
+    public static getUrlParams(url: string | undefined): UrlWithParsedQuery | undefined {
+        return <UrlWithStringQuery><unknown>url ? parse(<string>url, true) : undefined;
     }
 }

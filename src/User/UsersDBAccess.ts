@@ -1,5 +1,4 @@
 import Nedb from 'nedb';
-import {SessionToken} from "../Server/Model";
 import {User} from "../Shared/Model";
 
 export class UsersDBAccess {
@@ -16,6 +15,15 @@ export class UsersDBAccess {
                 if(!err) { reject(err) }
 
                 resolve();
+            })
+        })
+    }
+
+    public async getUserById(id: string): Promise<User | undefined> {
+        return new Promise((resolve, reject) => {
+            this.nedb.find({id}, (err: Error | null, docs: any) => {
+                if(err) { reject(err)}
+                else { resolve(docs[0]) }
             })
         })
     }
