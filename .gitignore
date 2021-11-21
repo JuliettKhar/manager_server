@@ -1,6 +1,6 @@
 backend/node_modules
 .idea
-backend//dist
+backend/dist
 backend/package-lock.json
 backend/database
 backend/test/DbTest.ts
