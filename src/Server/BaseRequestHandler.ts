@@ -1,5 +1,5 @@
 import {IncomingMessage, ServerResponse} from "http";
-import {HTTP_CODES} from "../Shared/Model";
+import {HTTP_CODES, User} from "../Shared/Model";
 import {Account} from "./Model";
 
 export abstract class BaseRequestHandler {
@@ -25,10 +25,17 @@ export abstract class BaseRequestHandler {
 
     protected respondUnauthorized(message: string) {
         this.res.statusCode = HTTP_CODES.UNAUTHORIZED;
-        this.res.write(message)
+        this.res.write(message);
+        this.res.end();
     }
 
-    protected async getRequestBody(): Promise<Account> {
+    protected respondText(httpCode: HTTP_CODES, message: string) {
+        this.res.statusCode = httpCode;
+        this.res.write(message);
+        this.res.end();
+    }
+
+    protected async getRequestBody(): Promise<User | Account> {
         return new Promise((resolve, reject) => {
             let body = '';
             this.req.on('data', (data: string) => body += data)

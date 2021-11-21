@@ -1,5 +1,5 @@
 import {IncomingMessage, ServerResponse} from "http";
-import {TokenGenerator} from "./Model";
+import {Account, TokenGenerator} from "./Model";
 import {AccessRights, HTTP_CODES, HTTP_METHODS} from "../Shared/Model";
 import {BaseRequestHandler} from "./BaseRequestHandler";
 
@@ -24,7 +24,7 @@ export class LoginHandler extends BaseRequestHandler {
     private async handlePost() {
         try {
             const body = await this.getRequestBody();
-            const sessionToken = await this.tokenGenerator.generateToken(body);
+            const sessionToken = await this.tokenGenerator.generateToken(body as Account);
 
             if (sessionToken) {
                 this.res.statusCode = HTTP_CODES.CREATED;

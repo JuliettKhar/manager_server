@@ -1,5 +1,5 @@
 import {IncomingMessage, ServerResponse} from "http";
-import {AccessRights, HTTP_CODES, HTTP_METHODS, TokenValidator} from "../Shared/Model";
+import {AccessRights, HTTP_CODES, HTTP_METHODS, TokenValidator, User} from "../Shared/Model";
 import {Utils} from "./Utils";
 import {BaseRequestHandler} from "./BaseRequestHandler";
 import {UsersDBAccess} from "../User/UsersDBAccess";
@@ -17,6 +17,12 @@ export class UsersHandler extends BaseRequestHandler {
             case HTTP_METHODS.GET:
                 await this.handleGet();
                 break;
+            case HTTP_METHODS.PUT:
+                await this.handlePut();
+                break;
+            case HTTP_METHODS.DELETE:
+                await this.handleDelete();
+                break;
 
             default:
                 await this.handleNotFound();
@@ -32,7 +38,7 @@ export class UsersHandler extends BaseRequestHandler {
 
             if (parsedUrl) {
                 const userId = parsedUrl?.query.id;
-                if (userId) {
+                if (parsedUrl?.query.id) {
                     const user = await this.usersDbAccess.getUserById(userId as string);
                     if (user) {
                         this.res.writeHead(HTTP_CODES.OK, {'Content-Type': 'application/json'});
@@ -40,14 +46,55 @@ export class UsersHandler extends BaseRequestHandler {
                     } else {
                         await this.handleNotFound();
                     }
+                } else if (parsedUrl?.query.name) {
+                    const users = await this.usersDbAccess.getUserByName(parsedUrl.query.name as string)
+                    this.respondJSONObject(HTTP_CODES.OK, users)
                 } else {
-                    this.respondBadRequest('userId not presented')
+                    this.respondBadRequest('userId or name not presented')
                 }
             }
         } else {
-                this.respondUnauthorized('missing or invalid token')
+            this.respondUnauthorized('missing or invalid token')
+        }
+
+    }
+
+    private async handlePut() {
+        const operationAuthorized = await this.operationAuthorized(AccessRights.READ);
+
+        if (operationAuthorized) {
+            try {
+                const user: User = await this.getRequestBody() as User;
+                await this.usersDbAccess.putUser(user);
+                this.respondText(HTTP_CODES.CREATED, `user ${user.name} created`)
+            } catch (e: any) {
+                this.respondBadRequest(e.message)
             }
 
+        } else {
+            this.respondUnauthorized('missing or invalid token')
+        }
+    }
+
+    private async handleDelete() {
+        const operationAuthorized = await this.operationAuthorized(AccessRights.READ);
+
+        if (operationAuthorized) {
+            const parsedUrl = Utils.getUrlParams(this.req.url);
+
+                if (parsedUrl?.query.id) {
+                    const deleteRes = await this.usersDbAccess.deleteUser(parsedUrl.query.id as string);
+
+                    if (deleteRes) {
+                        this.respondText(HTTP_CODES.OK, `user ${parsedUrl.query.id} deleted`)
+                    } else {
+                        this.respondText(HTTP_CODES.NOT_FOUND, `user ${parsedUrl.query.id} not found`)
+                    }
+                } else {
+                    this.respondBadRequest('missing id')
+                }
+
+        }
     }
 
     public async operationAuthorized(operation: AccessRights): Promise<boolean> {
