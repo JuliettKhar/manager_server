@@ -4,7 +4,7 @@ export class Main {
     private router: Router = new Router();
 
     public constructor() {
-        console.log(1)
+        console.log('1')
     }
 
     public launchApp() {
