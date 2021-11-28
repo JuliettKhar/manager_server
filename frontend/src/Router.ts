@@ -10,18 +10,22 @@ export class Router {
 
         switch (route) {
             case '/login':
-                if (this.mainElement) {
-                    this.mainElement.innerHTML = ''
-                    const loginController: LoginController = new LoginController();
-                    this.mainElement.append(loginController.createView())
-                }
+                this.switchToLoginView();
                 break;
             default:
                 if (this.mainElement) {
-                    const mainController: MainController = new MainController();
+                    const mainController: MainController = new MainController(this);
                     this.mainElement.append(mainController.createView())
                 }
                 break;
+        }
+    }
+
+    public switchToLoginView() {
+        if (this.mainElement) {
+            this.mainElement.innerHTML = ''
+            const loginController: LoginController = new LoginController(this);
+            this.mainElement.append(loginController.createView())
         }
     }
 
@@ -29,5 +33,5 @@ export class Router {
         console.log(location.pathname)
         return location.pathname;
     }
-    
+
 }
