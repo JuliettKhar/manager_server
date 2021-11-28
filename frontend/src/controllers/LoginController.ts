@@ -1,6 +1,9 @@
 import {BaseController} from "./BaseController";
+import {LoginService} from "../servises/LoginService";
 
 export class LoginController extends BaseController {
+    private loginService = new LoginService();
+
     private title = this.createElement('h2', 'please, login')
     private userName = this.createElement('label', 'User Name')
     private input = this.createElement('input')
@@ -14,9 +17,16 @@ export class LoginController extends BaseController {
     private button = this.createElement(
             'button',
             'login',
-            () => {
+            async () => {
                 if (this.input.value && this.passwordInput.value) {
                     this.resetErrorLabel();
+                    const res = await this.loginService.login(this.input.value, this.passwordInput.value)
+
+                    if (res) {
+                        this.router.switchToDashboardView(res)
+                    } else {
+                        this.showErrorLabel('invalid creds')
+                    }
                 } else {
                     this.showErrorLabel('fill in the form');
                 }

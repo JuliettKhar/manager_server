@@ -1,5 +1,7 @@
 import {MainController} from "./controllers/MainController";
 import {LoginController} from "./controllers/LoginController";
+import {SessionToken} from "./models/AuthModels";
+import {DashboardController} from "./controllers/DashboardController";
 
 
 export class Router {
@@ -11,6 +13,9 @@ export class Router {
         switch (route) {
             case '/login':
                 this.switchToLoginView();
+                break;
+            case '/board':
+                this.switchToDashboardView(undefined);
                 break;
             default:
                 if (this.mainElement) {
@@ -29,8 +34,19 @@ export class Router {
         }
     }
 
+    public switchToDashboardView(token: SessionToken | undefined) {
+        if (this.mainElement) {
+            this.mainElement.innerHTML = ''
+            const dashboardController: DashboardController = new DashboardController(this);
+            if (token) {
+                dashboardController.setSessionToken(token)
+            }
+            this.mainElement.append(dashboardController.createView())
+        }
+
+    }
+
     private static getRoute(): string {
-        console.log(location.pathname)
         return location.pathname;
     }
 
