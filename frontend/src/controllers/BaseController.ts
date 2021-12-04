@@ -24,4 +24,8 @@ export abstract class BaseController {
         this.container.append(element)
         return element
     }
+
+    protected createBreak() {
+        this.createElement('br');
+    }
 }
