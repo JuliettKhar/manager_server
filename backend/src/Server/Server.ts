@@ -1,4 +1,4 @@
-import { createServer } from "http";
+import {createServer, ServerResponse} from "http";
 import {Utils} from "./Utils";
 import {LoginHandler} from "./LoginHandler";
 import {Authorizer} from "../Auth/Authorizer";
@@ -9,7 +9,7 @@ export class Server {
 
     public createServer() {
         createServer((async (req, res) => {
-            console.log(`got req from ${req.url}`);
+            Server.addCourseHeader(res);
             const basePath = Utils.getUrlBasePath(`${req.headers.host}${req.url}`);
 
             switch (basePath) {
@@ -26,5 +26,10 @@ export class Server {
             res.end();
         })).listen(4000);
         console.log('server started')
+    }
+
+    private static addCourseHeader(res: ServerResponse) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Headers', '*')
     }
 }
