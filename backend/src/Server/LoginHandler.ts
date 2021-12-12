@@ -2,7 +2,9 @@ import {IncomingMessage, ServerResponse} from "http";
 import {Account, TokenGenerator} from "./Model";
 import {HTTP_CODES, HTTP_METHODS} from "../Shared/Model";
 import {BaseRequestHandler} from "./BaseRequestHandler";
+import {countInstances} from "../Shared/ObjectsCounter";
 
+@countInstances
 export class LoginHandler extends BaseRequestHandler {
 
     public constructor(protected req: IncomingMessage, protected res: ServerResponse, protected tokenGenerator: TokenGenerator) {
